@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
-
+from collections import defaultdict
+import math
 
 def generate_mujoco_simulation_environment(pts, cells, room_floor_cells, corridor_cells, xml_file_name="mujoco_simulation_environment.xml"):
 
@@ -29,6 +30,10 @@ def generate_mujoco_simulation_environment(pts, cells, room_floor_cells, corrido
 
     ET.SubElement(worldbody, "geom", type="mesh", mesh="corridor_mesh", rgba="1.0 1.0 0.0 1")
     ET.SubElement(worldbody, "geom", type="mesh", mesh="room_mesh",rgba="0.0 1.0 0.0 1")
+
+    walkable_cells = set(room_floor_cells) | set(corridor_cells)
+
+    add_boundary_walls(worldbody, pts, cells, walkable_cells)
 
     tree = ET.ElementTree(root)
     ET.indent(tree)
@@ -85,3 +90,62 @@ def generate_mesh_file(filename, pts, cells, walkable_cells):
             f.write(f"f {a} {b} {c}\n")
 
     print(f"Saved {filename}")
+
+
+
+def add_boundary_walls(worldbody, pts, cells, walkable_cells):
+
+    wall_height = 0.5
+    wall_thickness = 0.01
+
+    edge_count = defaultdict(int)
+
+    # Find border edges (edges that are only used 1 wallkable cell)
+
+    for cell_idx in walkable_cells:
+
+        cell = cells[cell_idx]
+
+        if len(cell) != 4:
+            continue
+
+        for i in range(4):
+
+            v1 = cell[i]
+            v2 = cell[(i + 1) % 4]
+
+            edge = tuple(sorted((v1, v2)))
+
+            edge_count[edge] += 1
+
+    # Create wall for every border edge
+
+    for (v1, v2), count in edge_count.items():
+
+        if count != 1:
+            continue
+
+        p1 = pts[v1]
+        p2 = pts[v2]
+
+        mid = (p1 + p2) / 2
+
+        dx = p2[0] - p1[0]
+        dy = p2[1] - p1[1]
+
+        length = math.sqrt(dx * dx + dy * dy)
+
+        angle = math.atan2(dy, dx)
+
+        qw = math.cos(angle / 2)
+        qz = math.sin(angle / 2)
+
+        ET.SubElement(
+            worldbody,
+            "geom",
+            type="box",
+            pos=f"{mid[0]} {mid[1]} {wall_height/2}",
+            size=f"{length/2} {wall_thickness/2} {wall_height/2}",
+            quat=f"{qw} 0 0 {qz}",
+            rgba="0.3 0.3 0.3 1"
+        )
