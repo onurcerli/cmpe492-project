@@ -3,6 +3,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from collections import defaultdict
+from mujoco_integration import generate_mujoco_simulation_environment
 
 
 # --- Configuration ---
@@ -499,6 +500,8 @@ if __name__ == "__main__":
     
     # Corridor generation and path finding with A*
     corridor_cells = connect_rooms_and_get_corridors(rooms_dict, cell_neighbors, cell_centroids, room_floor_cells)
-    
+
+    generate_mujoco_simulation_environment(pts_relaxed, cells_final, room_floor_cells, corridor_cells)
+
     # Visualization of the grid structure with numpy
     visualize_dungeon_grid(pts_relaxed, cells_final, room_floor_cells, corridor_cells)
