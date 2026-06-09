@@ -8,16 +8,21 @@ This project generates organic simulation environments for robot navigation test
 
    ```
    git clone https://github.com/onurcerli/cmpe492-project
+   ```
+
+2. Change directory:
+
+   ```
    cd cmpe492-project
    ```
 
-2. Create a virtual environment:
+3. Create a virtual environment:
 
    ```
-   python -m venv eenv
+   python -m venv env
    ```
 
-3. Activate the virtual environment:
+4. Activate the virtual environment:
 
    - Linux/macOS
      ```
@@ -29,13 +34,13 @@ This project generates organic simulation environments for robot navigation test
      ```
      -
 
-4. Install the required packages:
+5. Install the required packages:
 
    ```
    pip install -r requirements.txt
    ```
 
-5. Running the Project
+6. Running the Project
    - Run the code to generate the simulation environment:
      ```
      python project.py
